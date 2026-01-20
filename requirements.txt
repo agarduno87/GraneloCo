@@ -1,5 +1,5 @@
 fastapi==0.109.2
 pydantic<2
 bcrypt==4.0.1
-python-jose==3.3.0
+python-jose==3.4.0
 databases==0.6.1
