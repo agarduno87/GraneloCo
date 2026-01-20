@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.sqlite3
+granelo.db
+
+# Virtual environments
+/backend/venv/
+/frontend/venv/
+
+# Node / Frontend
+/frontend/node_modules/
+/frontend/dist/
+
+# Env files
+/backend/.env
+/frontend/.env
