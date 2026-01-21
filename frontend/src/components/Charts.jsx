@@ -1,21 +1,21 @@
-// src/components/Charts.jsx
 import React, { useEffect, useState } from "react";
-import api from "../api";
+import { getVentasStats } from "../api";
 
 export default function Charts() {
-  const [stats, setStats] = useState(null);
+  const [stats, setStats] = useState({ total_kg: 0, total_recaudado: 0 });
 
-  useEffect(() => {
-    api.get("/ventas/stats").then(res => setStats(res.data));
-  }, []);
+  const fetchStats = async () => {
+    const res = await getVentasStats();
+    setStats(res.data);
+  };
 
-  if (!stats) return null;
+  useEffect(() => { fetchStats(); }, []);
 
   return (
     <div>
-      <h2>Estadísticas</h2>
-      <p>Total ventas: {stats.total_ventas}</p>
-      <p>Total ingresos: ${stats.total_ingresos}</p>
+      <h2>Estadísticas de Ventas</h2>
+      <p>Total kg vendidos: {stats.total_kg}</p>
+      <p>Total recaudado: ${stats.total_recaudado}</p>
     </div>
   );
 }

@@ -1,17 +1,20 @@
-# clientes_routes.py
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from database import get_db
-from auth import get_current_user
 from models import Cliente
-from schemas import ClienteOut
+from schemas import ClienteCreate, ClienteOut
 
-router = APIRouter(prefix="/clientes", tags=["clientes"])
+router = APIRouter(prefix="/clientes", tags=["Clientes"])
 
-@router.get("", response_model=list[ClienteOut])
-def obtener_clientes(
-    db: Session = Depends(get_db),
-    user=Depends(get_current_user)
-):
+@router.get("/", response_model=list[ClienteOut])
+def listar_clientes(db: Session = Depends(get_db)):
     return db.query(Cliente).all()
+
+@router.post("/", response_model=ClienteOut)
+def crear_cliente(data: ClienteCreate, db: Session = Depends(get_db)):
+    cliente = Cliente(**data.dict())
+    db.add(cliente)
+    db.commit()
+    db.refresh(cliente)
+    return cliente

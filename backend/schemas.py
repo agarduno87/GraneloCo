@@ -1,14 +1,9 @@
-# schemas.py
-from pydantic import BaseModel, EmailStr
-from datetime import date
-from typing import Optional, List
+from pydantic import BaseModel
+from datetime import datetime
 
-# -------------------
-# CLIENTES
-# -------------------
 class ClienteBase(BaseModel):
     nombre: str
-    correo: EmailStr
+    email: str | None = None
 
 class ClienteCreate(ClienteBase):
     pass
@@ -16,32 +11,14 @@ class ClienteCreate(ClienteBase):
 class ClienteOut(ClienteBase):
     id: int
 
-# -------------------
-# USUARIOS / AUTH
-# -------------------
-class UsuarioBase(BaseModel):
-    nombre: str
-    correo: EmailStr
+    class Config:
+        from_attributes = True
 
-class UsuarioCreate(UsuarioBase):
-    password: str
 
-class UsuarioOut(UsuarioBase):
-    id: int
-    token: Optional[str] = None  # para login
-
-class UsuarioLogin(BaseModel):
-    correo: EmailStr
-    password: str
-
-# -------------------
-# PRODUCTOS
-# -------------------
 class ProductoBase(BaseModel):
     nombre: str
-    precio_kg: float
-    stock_kg: float
-    unidad: Optional[str] = "kg"
+    precio: float
+    stock: float
 
 class ProductoCreate(ProductoBase):
     pass
@@ -49,29 +26,19 @@ class ProductoCreate(ProductoBase):
 class ProductoOut(ProductoBase):
     id: int
 
-# -------------------
-# VENTAS / VENTA ITEMS
-# -------------------
-class VentaItemBase(BaseModel):
-    producto_id: int
-    cantidad_kg: float
-    precio_unitario: float
+    class Config:
+        from_attributes = True
 
-class VentaItemCreate(VentaItemBase):
-    pass
 
-class VentaItemOut(VentaItemBase):
-    id: int
-
-class VentaBase(BaseModel):
+class VentaCreate(BaseModel):
     cliente_id: int
-    subtotal: float
-    impuestos: float
-    total: float
+    producto_id: int
+    cantidad: float
 
-class VentaCreate(VentaBase):
-    items: List[VentaItemCreate]
-
-class VentaOut(VentaBase):
+class VentaOut(BaseModel):
     id: int
-    items: List[VentaItemOut] = []
+    total: float
+    fecha: datetime
+
+    class Config:
+        from_attributes = True

@@ -1,38 +1,34 @@
-// tu código actual ya funciona,
-// sólo evitamos NaN y hacemos JSON en post
-import React from "react";
-import api from "../api";
-import Modal from "./Modal";
-import { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
+import { getClientes, postCliente } from "../api";
 
 export default function Clientes() {
   const [clientes, setClientes] = useState([]);
-  const [clienteForm, setClienteForm] = useState({
-    nombre: "",
-    correo: "",
-    telefono: "",
-  });
-  const [modalOpen, setModalOpen] = useState(false);
+  const [nombre, setNombre] = useState("");
 
-  async function fetchClientes() {
-    const res = await api.get("/clientes");
+  const fetchClientes = async () => {
+    const res = await getClientes();
     setClientes(res.data);
-  }
+  };
 
-  useEffect(() => {
-    fetchClientes();
-  }, []);
+  useEffect(() => { fetchClientes(); }, []);
 
-  async function handleSave(e) {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    await api.post("/clientes", clienteForm);
-    setModalOpen(false);
+    await postCliente({ nombre });
+    setNombre("");
     fetchClientes();
-  }
+  };
 
   return (
     <div>
-      {/* tu JSX aquí */}
+      <h2>Clientes</h2>
+      <form onSubmit={handleSubmit}>
+        <input value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder="Nombre" required />
+        <button className="bg-blue-500 text-white p-2 rounded">Agregar Cliente</button>
+      </form>
+      <ul>
+        {clientes.map(c => <li key={c.id}>{c.nombre}</li>)}
+      </ul>
     </div>
   );
 }

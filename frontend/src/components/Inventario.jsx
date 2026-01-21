@@ -1,132 +1,47 @@
-// src/components/Inventario.jsx
-import React, { useState, useEffect } from "react";
-import api from "../api";
-import Modal from "./Modal";
+import React, { useEffect, useState } from "react";
+import { getProductos, postProducto } from "../api";
 
 export default function Inventario() {
   const [productos, setProductos] = useState([]);
-  const [modalOpen, setModalOpen] = useState(false);
-  const [productoForm, setProductoForm] = useState({
-    nombre: "",
-    precio_kg: "",
-    stock_kg: "",
-  });
-  const [error, setError] = useState("");
+  const [form, setForm] = useState({ nombre: "", stock_kg: "", costo_kg: "" });
 
   const fetchProductos = async () => {
-    try {
-      const res = await api.get("/productos");
-      setProductos(res.data);
-    } catch (err) {
-      console.error(err);
-    }
+    const res = await getProductos();
+    setProductos(res.data);
   };
 
   useEffect(() => {
     fetchProductos();
   }, []);
 
-  const handleSave = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
-    try {
-      await api.post("/productos", {
-        nombre: productoForm.nombre,
-        precio_kg: parseFloat(productoForm.precio_kg),
-        stock_kg: parseFloat(productoForm.stock_kg),
-      });
-      setModalOpen(false);
-      setProductoForm({ nombre: "", precio_kg: "", stock_kg: "" });
-      fetchProductos();
-    } catch (err) {
-      console.error(err);
-      setError(err.response?.data?.detail || "Error guardando producto");
-    }
+    await postProducto({
+      nombre: form.nombre,
+      stock_kg: parseFloat(form.stock_kg),
+      costo_kg: parseFloat(form.costo_kg),
+    });
+    setForm({ nombre: "", stock_kg: "", costo_kg: "" });
+    fetchProductos();
   };
 
   return (
     <div>
-      <div className="flex justify-between mb-4">
-        <h2 className="text-xl font-bold">Inventario</h2>
-        <button
-          className="bg-[#004aad] text-white p-2 rounded"
-          onClick={() => setModalOpen(true)}
-        >
-          Agregar Producto
-        </button>
-      </div>
-
-      {error && <p style={{ color: "red" }}>{error}</p>}
-
-      <table className="w-full border border-gray-300">
-        <thead className="bg-gray-200">
-          <tr>
-            <th>ID</th>
-            <th>Nombre</th>
-            <th>Precio (kg)</th>
-            <th>Stock (kg)</th>
-          </tr>
-        </thead>
+      <h2>Inventario</h2>
+      <form onSubmit={handleSubmit}>
+        <input value={form.nombre} onChange={(e) => setForm({...form, nombre: e.target.value})} placeholder="Nombre" required />
+        <input value={form.stock_kg} onChange={(e) => setForm({...form, stock_kg: e.target.value})} placeholder="Stock (kg)" required />
+        <input value={form.costo_kg} onChange={(e) => setForm({...form, costo_kg: e.target.value})} placeholder="Costo/kg" required />
+        <button type="submit" className="bg-blue-500 text-white p-2 rounded">Agregar Producto</button>
+      </form>
+      <table>
+        <thead><tr><th>Nombre</th><th>Stock</th><th>Costo</th></tr></thead>
         <tbody>
-          {productos.map((p) => (
-            <tr key={p.id}>
-              <td>{p.id}</td>
-              <td>{p.nombre}</td>
-              <td>${p.precio_kg.toFixed(2)}</td>
-              <td>{p.stock_kg.toFixed(2)} kg</td>
-            </tr>
+          {productos.map(p => (
+            <tr key={p.id}><td>{p.nombre}</td><td>{p.stock_kg}</td><td>{p.costo_kg}</td></tr>
           ))}
         </tbody>
       </table>
-
-      <Modal
-        isOpen={modalOpen}
-        title="Nuevo Producto"
-        onClose={() => setModalOpen(false)}
-      >
-        <form onSubmit={handleSave} className="flex flex-col gap-2">
-          <input
-            placeholder="Nombre"
-            value={productoForm.nombre}
-            onChange={(e) =>
-              setProductoForm({ ...productoForm, nombre: e.target.value })
-            }
-            className="p-2 border rounded"
-            required
-          />
-
-          <input
-            placeholder="Precio por kg"
-            type="number"
-            step="0.01"
-            value={productoForm.precio_kg}
-            onChange={(e) =>
-              setProductoForm({ ...productoForm, precio_kg: e.target.value })
-            }
-            className="p-2 border rounded"
-            required
-          />
-
-          <input
-            placeholder="Stock inicial (kg)"
-            type="number"
-            step="0.01"
-            value={productoForm.stock_kg}
-            onChange={(e) =>
-              setProductoForm({ ...productoForm, stock_kg: e.target.value })
-            }
-            className="p-2 border rounded"
-            required
-          />
-
-          <button
-            type="submit"
-            className="bg-[#004aad] text-white p-2 rounded"
-          >
-            Guardar
-          </button>
-        </form>
-      </Modal>
     </div>
   );
 }
