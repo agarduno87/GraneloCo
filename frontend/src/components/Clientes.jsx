@@ -1,31 +1,32 @@
 import React, { useEffect, useState } from "react";
-import { getClientes, postCliente } from "../api";
+import { getClientes, addCliente } from "../api";
+import "./ButtonBlue.css";
 
 export default function Clientes() {
   const [clientes, setClientes] = useState([]);
   const [nombre, setNombre] = useState("");
 
+  useEffect(() => {
+    fetchClientes();
+  }, []);
+
   const fetchClientes = async () => {
-    const res = await getClientes();
-    setClientes(res.data);
+    const data = await getClientes();
+    setClientes(data);
   };
 
-  useEffect(() => { fetchClientes(); }, []);
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    await postCliente({ nombre });
+  const handleAddCliente = async () => {
+    if (!nombre) return;
+    await addCliente({ nombre });
     setNombre("");
     fetchClientes();
   };
 
   return (
     <div>
-      <h2>Clientes</h2>
-      <form onSubmit={handleSubmit}>
-        <input value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder="Nombre" required />
-        <button className="bg-blue-500 text-white p-2 rounded">Agregar Cliente</button>
-      </form>
+      <h1>Clientes</h1>
+      <input value={nombre} placeholder="Nombre Cliente" onChange={e => setNombre(e.target.value)} />
+      <button className="btn-blue" onClick={handleAddCliente}>Agregar Cliente</button>
       <ul>
         {clientes.map(c => <li key={c.id}>{c.nombre}</li>)}
       </ul>

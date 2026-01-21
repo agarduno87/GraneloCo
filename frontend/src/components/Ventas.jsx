@@ -1,64 +1,51 @@
 import React, { useEffect, useState } from "react";
-import { getVentas, postVenta, getProductos, getClientes } from "../api";
+import { getClientes, getProductos, addVenta } from "../api";
+import "./ButtonBlue.css";
 
 export default function Ventas() {
-  const [ventas, setVentas] = useState([]);
   const [clientes, setClientes] = useState([]);
   const [productos, setProductos] = useState([]);
-  const [clienteId, setClienteId] = useState("");
-  const [productoId, setProductoId] = useState("");
-  const [cantidad, setCantidad] = useState("");
+  const [selectedCliente, setSelectedCliente] = useState("");
+  const [selectedProducto, setSelectedProducto] = useState("");
+  const [cantidad, setCantidad] = useState(1);
+
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   const fetchData = async () => {
-    setVentas((await getVentas()).data);
-    setClientes((await getClientes()).data);
-    setProductos((await getProductos()).data);
+    setClientes(await getClientes());
+    setProductos(await getProductos());
   };
 
-  useEffect(() => { fetchData(); }, []);
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    await postVenta({
-      cliente_id: parseInt(clienteId),
-      producto_id: parseInt(productoId),
-      cantidad_kg: parseFloat(cantidad),
+  const handleAddVenta = async () => {
+    if (!selectedCliente || !selectedProducto || cantidad <= 0) return;
+    await addVenta({
+      cliente_id: parseInt(selectedCliente),
+      producto_id: parseInt(selectedProducto),
+      cantidad: parseInt(cantidad),
     });
-    setClienteId("");
-    setProductoId("");
-    setCantidad("");
+    setSelectedCliente(""); setSelectedProducto(""); setCantidad(1);
     fetchData();
   };
 
   return (
     <div>
-      <h2>Ventas</h2>
-      <form onSubmit={handleSubmit}>
-        <select value={clienteId} onChange={(e) => setClienteId(e.target.value)} required>
+      <h1>Ventas</h1>
+      <div className="ventas-form">
+        <select value={selectedCliente} onChange={e => setSelectedCliente(e.target.value)}>
           <option value="">Selecciona Cliente</option>
           {clientes.map(c => <option key={c.id} value={c.id}>{c.nombre}</option>)}
         </select>
-        <select value={productoId} onChange={(e) => setProductoId(e.target.value)} required>
+        <select value={selectedProducto} onChange={e => setSelectedProducto(e.target.value)}>
           <option value="">Selecciona Producto</option>
           {productos.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
         </select>
-        <input value={cantidad} onChange={(e) => setCantidad(e.target.value)} placeholder="Cantidad (kg)" required />
-        <button type="submit" className="bg-blue-500 text-white p-2 rounded">Registrar Venta</button>
-      </form>
-
-      <table>
-        <thead><tr><th>Cliente</th><th>Producto</th><th>Cantidad</th><th>Total</th></tr></thead>
-        <tbody>
-          {ventas.map(v => (
-            <tr key={v.id}>
-              <td>{v.cliente.nombre}</td>
-              <td>{v.producto.nombre}</td>
-              <td>{v.cantidad_kg}</td>
-              <td>{v.total}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+        <input type="number" min="1" value={cantidad} onChange={e => setCantidad(e.target.value)} />
+        <button className="btn-blue" onClick={handleAddVenta}>
+          Registrar Venta
+        </button>
+      </div>
     </div>
   );
 }

@@ -1,47 +1,45 @@
 import React, { useEffect, useState } from "react";
-import { getProductos, postProducto } from "../api";
+import { getProductos, addProducto } from "../api";
+import "./ButtonBlue.css";
 
 export default function Inventario() {
   const [productos, setProductos] = useState([]);
-  const [form, setForm] = useState({ nombre: "", stock_kg: "", costo_kg: "" });
-
-  const fetchProductos = async () => {
-    const res = await getProductos();
-    setProductos(res.data);
-  };
+  const [nombre, setNombre] = useState("");
+  const [precio, setPrecio] = useState("");
+  const [stock, setStock] = useState("");
 
   useEffect(() => {
     fetchProductos();
   }, []);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    await postProducto({
-      nombre: form.nombre,
-      stock_kg: parseFloat(form.stock_kg),
-      costo_kg: parseFloat(form.costo_kg),
-    });
-    setForm({ nombre: "", stock_kg: "", costo_kg: "" });
+  const fetchProductos = async () => {
+    const data = await getProductos();
+    setProductos(data);
+  };
+
+  const handleAddProducto = async () => {
+    if (!nombre || !precio || !stock) return;
+    await addProducto({ nombre, precio: parseFloat(precio), stock: parseInt(stock) });
+    setNombre(""); setPrecio(""); setStock("");
     fetchProductos();
   };
 
   return (
     <div>
-      <h2>Inventario</h2>
-      <form onSubmit={handleSubmit}>
-        <input value={form.nombre} onChange={(e) => setForm({...form, nombre: e.target.value})} placeholder="Nombre" required />
-        <input value={form.stock_kg} onChange={(e) => setForm({...form, stock_kg: e.target.value})} placeholder="Stock (kg)" required />
-        <input value={form.costo_kg} onChange={(e) => setForm({...form, costo_kg: e.target.value})} placeholder="Costo/kg" required />
-        <button type="submit" className="bg-blue-500 text-white p-2 rounded">Agregar Producto</button>
-      </form>
-      <table>
-        <thead><tr><th>Nombre</th><th>Stock</th><th>Costo</th></tr></thead>
-        <tbody>
-          {productos.map(p => (
-            <tr key={p.id}><td>{p.nombre}</td><td>{p.stock_kg}</td><td>{p.costo_kg}</td></tr>
-          ))}
-        </tbody>
-      </table>
+      <h1>Inventario</h1>
+      <div className="inventario-form">
+        <input value={nombre} placeholder="Nombre" onChange={e => setNombre(e.target.value)} />
+        <input value={precio} placeholder="Precio" onChange={e => setPrecio(e.target.value)} />
+        <input value={stock} placeholder="Stock" onChange={e => setStock(e.target.value)} />
+        <button className="btn-blue" onClick={handleAddProducto}>
+          Agregar Producto
+        </button>
+      </div>
+      <ul>
+        {productos.map(p => (
+          <li key={p.id}>{p.nombre} - ${p.precio} - Stock: {p.stock}</li>
+        ))}
+      </ul>
     </div>
   );
 }

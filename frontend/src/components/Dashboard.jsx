@@ -1,59 +1,45 @@
-// src/components/Dashboard.jsx
-import React, { useState } from "react";
-import Ventas from "./Ventas";
-import Inventario from "./Inventario";
-import Clientes from "./Clientes";
-import Charts from "./Charts";
+import React, { useEffect, useState } from "react";
+import { getClientes, getProductos, getVentas } from "../api";
+import "./ButtonBlue.css";
 
 export default function Dashboard() {
-  const [section, setSection] = useState("Ventas");
+  const [clientes, setClientes] = useState([]);
+  const [productos, setProductos] = useState([]);
+  const [ventas, setVentas] = useState([]);
 
-  const renderSection = () => {
-    switch (section) {
-      case "Ventas": return <Ventas />;
-      case "Inventario": return <Inventario />;
-      case "Clientes": return <Clientes />;
-      case "Charts": return <Charts />;
-      default: return <Ventas />;
-    }
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
+    const clientesData = await getClientes();
+    const productosData = await getProductos();
+    const ventasData = await getVentas();
+    setClientes(clientesData);
+    setProductos(productosData);
+    setVentas(ventasData);
   };
 
   return (
-    <div style={{ display: "flex", height: "100vh", fontFamily: "FF Providence Sans" }}>
-      {/* Menú lateral */}
-      <aside style={{
-        width: 220,
-        backgroundColor: "#004aad",
-        color: "#fff",
-        padding: "20px",
-        display: "flex",
-        flexDirection: "column",
-        gap: "15px"
-      }}>
-        <h2 style={{ fontSize: "20px", marginBottom: "20px" }}>Granel Co.</h2>
-        {["Ventas","Inventario","Clientes","Charts"].map(sec => (
-          <button
-            key={sec}
-            onClick={() => setSection(sec)}
-            style={{
-              backgroundColor: section===sec ? "#003380" : "transparent",
-              color: "#fff",
-              border: "none",
-              padding: "10px",
-              borderRadius: "5px",
-              cursor: "pointer",
-              textAlign: "left"
-            }}
-          >
-            {sec}
-          </button>
-        ))}
-      </aside>
-
-      {/* Contenido */}
-      <main style={{ flex: 1, padding: "20px", backgroundColor: "#f5f5f5", overflowY: "auto" }}>
-        {renderSection()}
-      </main>
+    <div className="dashboard">
+      <h1>Dashboard</h1>
+      <div className="dashboard-sections">
+        <div>
+          <h2>Clientes</h2>
+          <p>Total: {clientes.length}</p>
+        </div>
+        <div>
+          <h2>Productos</h2>
+          <p>Total: {productos.length}</p>
+        </div>
+        <div>
+          <h2>Ventas</h2>
+          <p>Total: {ventas.length}</p>
+        </div>
+      </div>
+      <button className="btn-blue" onClick={fetchData}>
+        Actualizar Datos
+      </button>
     </div>
   );
 }
