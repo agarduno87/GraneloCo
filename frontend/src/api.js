@@ -2,29 +2,41 @@ import axios from "axios";
 
 const API_URL = "http://127.0.0.1:8000";
 
-const api = axios.create({
-  baseURL: API_URL,
-});
-
-api.interceptors.request.use((config) => {
-  const user = JSON.parse(localStorage.getItem("user"));
-  if (user?.token) {
-    config.headers.Authorization = `Bearer ${user.token}`;
+// Clientes
+export const getClientes = async () => {
+  try {
+    const response = await axios.get(`${API_URL}/clientes`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching clientes:", error);
+    return [];
   }
-  return config;
-});
+};
 
-// CLIENTES
-export const getClientes = () => api.get("/clientes");
-export const postCliente = (cliente) => api.post("/clientes", cliente);
+// Productos
+export const getProductos = async () => {
+  try {
+    const response = await axios.get(`${API_URL}/productos`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching productos:", error);
+    return [];
+  }
+};
 
-// PRODUCTOS
-export const getProductos = () => api.get("/productos");
-export const postProducto = (producto) => api.post("/productos", producto);
+// Ventas
+export const getVentas = async () => {
+  try {
+    const response = await axios.get(`${API_URL}/ventas`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching ventas:", error);
+    return [];
+  }
+};
 
-// VENTAS
-export const getVentas = () => api.get("/ventas");
-export const postVenta = (venta) => api.post("/ventas", venta);
-
-// STATS
-export const getVentasStats = () => api.get("/ventas/stats");
+export default {
+  getClientes,
+  getProductos,
+  getVentas,
+};
