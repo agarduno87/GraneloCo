@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import api from "../api";
-import "./ButtonBlue.css";
+import "../styles/global.css";
 
 export default function Dashboard() {
   const [clientes, setClientes] = useState([]);
@@ -11,71 +11,82 @@ export default function Dashboard() {
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
-      const [clientesData, productosData, ventasData] = await Promise.all([
-        api.getClientes(),
-        api.getProductos(),
-        api.getVentas(),
-      ]);
-      setClientes(clientesData);
-      setProductos(productosData);
-      setVentas(ventasData);
+      try {
+        const [cData, pData, vData] = await Promise.all([
+          api.getClientes(),
+          api.getProductos(),
+          api.getVentas(),
+        ]);
+        setClientes(cData);
+        setProductos(pData);
+        setVentas(vData);
+      } catch (err) {
+        console.error("Error dashboard:", err);
+      }
       setLoading(false);
     };
-
     fetchData();
   }, []);
 
-  if (loading) return <div className="loading">Cargando Dashboard...</div>;
+  if (loading)
+    return <p style={{ textAlign: "center", fontSize: "1.2rem" }}>Loading…</p>;
 
   return (
-    <div className="dashboard-container">
-      <h1>Dashboard</h1>
+    <div>
+      {/* Cabecera con tu imagen de menú */}
+      <div className="card" style={{ textAlign: "center" }}>
+        <img
+          src="https://drive.google.com/uc?export=view&id=1Z1QN7tdzuOcR4jQraO9r16zMV-Xp4NsT"
+          alt="Menú GraneloCo"
+          style={{ maxWidth: "250px", margin: "0 auto" }}
+        />
+      </div>
 
-      <section className="dashboard-section">
+      {/* Tarjetas resumen */}
+      <div className="card">
+        <h2>Total Clientes</h2>
+        <p>{clientes.length}</p>
+      </div>
+
+      <div className="card">
+        <h2>Total Productos</h2>
+        <p>{productos.length}</p>
+      </div>
+
+      <div className="card">
+        <h2>Total Ventas</h2>
+        <p>{ventas.length}</p>
+      </div>
+
+      {/* Listas simplificadas */}
+      <div className="card">
         <h2>Clientes</h2>
-        {clientes.length === 0 ? (
-          <p>No hay clientes registrados</p>
-        ) : (
-          <ul>
-            {clientes.map((cliente) => (
-              <li key={cliente.id}>{cliente.nombre}</li>
-            ))}
-          </ul>
-        )}
-      </section>
+        <ul className="dashboard-list">
+          {clientes.map((c) => (
+            <li key={c.id}>{c.nombre}</li>
+          ))}
+        </ul>
+      </div>
 
-      <section className="dashboard-section">
+      <div className="card">
         <h2>Productos</h2>
-        {productos.length === 0 ? (
-          <p>No hay productos registrados</p>
-        ) : (
-          <ul>
-            {productos.map((producto) => (
-              <li key={producto.id}>{producto.nombre}</li>
-            ))}
-          </ul>
-        )}
-      </section>
+        <ul className="dashboard-list">
+          {productos.map((p) => (
+            <li key={p.id}>{p.nombre}</li>
+          ))}
+        </ul>
+      </div>
 
-      <section className="dashboard-section">
+      <div className="card">
         <h2>Ventas</h2>
-        {ventas.length === 0 ? (
-          <p>No hay ventas registradas</p>
-        ) : (
-          <ul>
-            {ventas.map((venta) => (
-              <li key={venta.id}>
-                {venta.cliente_nombre} compró {venta.producto_nombre} -{" "}
-                {venta.cantidad} unidades
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
-
-      <button className="btn-blue" onClick={() => alert("Función de prueba")}>
-        Acción de prueba
-      </button>
+        <ul className="dashboard-list">
+          {ventas.map((v) => (
+            <li key={v.id}>
+              {v.cliente_nombre} — {v.producto_nombre} × {v.cantidad}
+            </li>
+          ))}
+        </ul>
+      </div>
     </div>
   );
 }
