@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { getProductos, addProducto } from "../api";
+import { getProductos, postProducto } from "../api";
 import "./ButtonBlue.css";
 
 export default function Inventario() {
@@ -13,31 +13,60 @@ export default function Inventario() {
   }, []);
 
   const fetchProductos = async () => {
-    const data = await getProductos();
-    setProductos(data);
+    try {
+      const res = await getProductos();
+      setProductos(res.data);
+    } catch (err) {
+      console.error("Error obteniendo productos:", err);
+    }
   };
 
-  const handleAddProducto = async () => {
-    if (!nombre || !precio || !stock) return;
-    await addProducto({ nombre, precio: parseFloat(precio), stock: parseInt(stock) });
-    setNombre(""); setPrecio(""); setStock("");
-    fetchProductos();
+  const agregarProducto = async () => {
+    if (!nombre.trim()) return;
+    try {
+      await postProducto({
+        nombre,
+        precio_kg: parseFloat(precio),
+        stock_kg: parseFloat(stock),
+      });
+      setNombre("");
+      setPrecio("");
+      setStock("");
+      fetchProductos();
+    } catch (err) {
+      console.error("Error agregando producto:", err);
+    }
   };
 
   return (
     <div>
       <h1>Inventario</h1>
       <div className="inventario-form">
-        <input value={nombre} placeholder="Nombre" onChange={e => setNombre(e.target.value)} />
-        <input value={precio} placeholder="Precio" onChange={e => setPrecio(e.target.value)} />
-        <input value={stock} placeholder="Stock" onChange={e => setStock(e.target.value)} />
-        <button className="btn-blue" onClick={handleAddProducto}>
+        <input
+          value={nombre}
+          placeholder="Nombre del producto"
+          onChange={(e) => setNombre(e.target.value)}
+        />
+        <input
+          value={precio}
+          placeholder="Precio por unidad"
+          onChange={(e) => setPrecio(e.target.value)}
+        />
+        <input
+          value={stock}
+          placeholder="Stock disponible"
+          onChange={(e) => setStock(e.target.value)}
+        />
+        <button className="btn-blue" onClick={agregarProducto}>
           Agregar Producto
         </button>
       </div>
+
       <ul>
-        {productos.map(p => (
-          <li key={p.id}>{p.nombre} - ${p.precio} - Stock: {p.stock}</li>
+        {productos.map((p) => (
+          <li key={p.id}>
+            {p.nombre} — ${p.precio_kg} — Stock: {p.stock_kg}
+          </li>
         ))}
       </ul>
     </div>
