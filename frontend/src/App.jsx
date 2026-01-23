@@ -1,24 +1,32 @@
-import React from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import Login from "./pages/Login";
+import Productos from "./pages/Productos";
+import Clientes from "./pages/Clientes";
+import Ventas from "./pages/Ventas";
 import Dashboard from "./components/Dashboard";
-import Clientes from "./components/Clientes";
-import Inventario from "./components/Inventario";
-import Ventas from "./components/Ventas";
-import Login from "./components/Login";
-import "./styles/global.css"; // nuevo archivo para estilos globales
+import Navbar from "./components/Navbar";
 
-export default function App() {
+function App() {
+  const token = localStorage.getItem("token");
+
   return (
-    <BrowserRouter>
-      <div className="app-container">
-        <Routes>
-          <Route path="/" element={<Login />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/clientes" element={<Clientes />} />
-          <Route path="/inventario" element={<Inventario />} />
-          <Route path="/ventas" element={<Ventas />} />
-        </Routes>
-      </div>
-    </BrowserRouter>
+    <Router>
+      <Navbar />
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        {token ? (
+          <>
+            <Route path="/" element={<Dashboard />} />
+            <Route path="/productos" element={<Productos />} />
+            <Route path="/clientes" element={<Clientes />} />
+            <Route path="/ventas" element={<Ventas />} />
+          </>
+        ) : (
+          <Route path="*" element={<Navigate to="/login" replace />} />
+        )}
+      </Routes>
+    </Router>
   );
 }
+
+export default App;
