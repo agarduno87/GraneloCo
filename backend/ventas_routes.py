@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-
+from .crud import ventas as crud_ventas
 from .database import get_db
 from .models import Venta, Producto
 from .schemas import VentaCreate, VentaOut

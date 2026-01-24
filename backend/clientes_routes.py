@@ -2,7 +2,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from .crud import clientes as crud_clientes
-from .schemas import ClienteCreate, ClienteUpdate, ClienteOut
+from .schemas import ClienteCreate, ClienteUpdate, ClienteOuti
 from .database import get_db
 
 router = APIRouter(
@@ -15,9 +15,12 @@ def crear_cliente(cliente: ClienteCreate, db: Session = Depends(get_db)):
     return crud_clientes.create_cliente(db, cliente)
 
 @router.get("/")
-@router.get("/")
 def read_clientes():
     return crud_clientes.get_clientes()
+
+@router.get("/", response_model=list[ClienteRead])
+def get_clientes(db: Session = Depends(get_db)):
+    return crud_clientes.read_clientes(db)
 
 @router.get("/", response_model=list[ClienteOut])
 def listar_clientes(db: Session = Depends(get_db)):

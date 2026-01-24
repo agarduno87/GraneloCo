@@ -36,6 +36,11 @@ class ClienteBase(BaseModel):
 class ClienteCreate(ClienteBase):
     pass
 
+class ClienteRead(BaseModel):
+    id: int
+    nombre: str
+    email: str
+
 class ClienteUpdate(BaseModel):
     nombre: Optional[str] = None
     email: Optional[str] = None

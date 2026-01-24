@@ -1,6 +1,6 @@
 from database import SessionLocal
-from backend.models import Usuario
-from backend.auth import hash_password
+from .models import Usuario
+from .auth import hash_password
 
 def run_seed():
     """
