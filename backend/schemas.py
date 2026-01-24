@@ -1,77 +1,56 @@
-# schemas.py
 from pydantic import BaseModel
 from typing import Optional, List
 from datetime import date
 
-# -------------------
-# PRODUCTOS
-# -------------------
-class ProductoBase(BaseModel):
+# -------- PRODUCTOS --------
+class ProductoRead(BaseModel):
+    id: int
     nombre: str
     precio: float
-    stock: int
-
-class ProductoCreate(ProductoBase):
-    pass
-
-class ProductoUpdate(BaseModel):
-    nombre: Optional[str] = None
-    precio: Optional[float] = None
-    stock: Optional[int] = None
-
-class Producto(ProductoBase):
-    id: int
+    stock: float
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
-# -------------------
-# CLIENTES
-# -------------------
-class ClienteBase(BaseModel):
-    nombre: str
-    email: str
-    telefono: Optional[str] = None
 
-class ClienteCreate(ClienteBase):
-    pass
-
+# -------- CLIENTES --------
 class ClienteRead(BaseModel):
     id: int
     nombre: str
-    email: str
-
-class ClienteUpdate(BaseModel):
-    nombre: Optional[str] = None
-    email: Optional[str] = None
-    telefono: Optional[str] = None
-
-# Esta es la clase que tus routers llaman ClienteOut
-class ClienteOut(ClienteBase):
-    id: int
+    email: str | None = None
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
-# -------------------
-# VENTAS
-# -------------------
-class VentaBase(BaseModel):
+
+# -------- VENTAS --------
+class VentaItemCreate(BaseModel):
+    producto_id: int
+    cantidad: float
+
+
+class VentaItemRead(BaseModel):
+    producto: ProductoRead
+    cantidad: float
+    precio_unitario: float
+
+    class Config:
+        from_attributes = True
+
+
+class VentaCreate(BaseModel):
     cliente_id: int
-    fecha: Optional[date] = None
+    items: List[VentaItemCreate]
 
-class VentaCreate(VentaBase):
-    productos_ids: List[int]
 
-class VentaUpdate(BaseModel):
-    cliente_id: Optional[int] = None
-    fecha: Optional[date] = None
-    productos_ids: Optional[List[int]] = None
-
-class Venta(VentaBase):
+class VentaRead(BaseModel):
     id: int
-    productos: List[Producto] = []
+    cliente: ClienteRead
+    subtotal: float
+    impuestos: float
+    total: float
+    fecha: date
+    items: List[VentaItemRead]
 
     class Config:
-        orm_mode = True
-
+        from_attributes = True

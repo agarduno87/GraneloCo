@@ -1,38 +1,31 @@
 from sqlalchemy.orm import Session
-from . models import Venta, VentaItem, Producto
-from . schemas import VentaCreate, VentaItemCreate
-from .database import SessionLocal
-from . import models, schemas
-from .crud import ventas as crud_ventas
+from models import Venta, VentaItem, Producto
+from schemas import VentaCreate
 
-def read_ventas():
-    db = SessionLocal()
-    ventas = db.query(Venta).all()
-    db.close()
-    return ventas
+def get_ventas(db: Session):
+    return db.query(Venta).all()
+
 
 def crear_venta(db: Session, venta: VentaCreate):
-    subtotal = 0.0
-    items_out = []
+    subtotal = 0
+    items_db = []
 
     for item in venta.items:
         producto = db.query(Producto).filter(Producto.id == item.producto_id).first()
         if not producto:
-            raise ValueError(f"Producto ID {item.producto_id} no existe")
-        if producto.stock_kg < item.cantidad_kg:
-            raise ValueError(f"Stock insuficiente para {producto.nombre}")
-        
-        precio_unitario = producto.precio_kg
-        subtotal += precio_unitario * item.cantidad_kg
+            raise ValueError("Producto no existe")
 
-        # Descontar stock
-        producto.stock_kg -= item.cantidad_kg
-        db.add(producto)
-        
-        items_out.append(
+        if producto.stock < item.cantidad:
+            raise ValueError("Stock insuficiente")
+
+        producto.stock -= item.cantidad
+        precio_unitario = producto.precio
+        subtotal += precio_unitario * item.cantidad
+
+        items_db.append(
             VentaItem(
                 producto_id=producto.id,
-                cantidad_kg=item.cantidad_kg,
+                cantidad=item.cantidad,
                 precio_unitario=precio_unitario
             )
         )
@@ -45,7 +38,7 @@ def crear_venta(db: Session, venta: VentaCreate):
         subtotal=subtotal,
         impuestos=impuestos,
         total=total,
-        items=items_out
+        items=items_db
     )
 
     db.add(db_venta)
