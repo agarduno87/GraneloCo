@@ -1,6 +1,6 @@
 /* Tipografía global */
 @font-face {
-  font-family: "FF Providence Sans";
+  font-family: "Inter", system-ui, sans-serif;
   src: url("/fonts/FFProvidenceSans.woff2") format("woff2"),
        url("/fonts/FFProvidenceSans.woff") format("woff");
   font-weight: 400;
@@ -11,14 +11,14 @@ html, body, #root {
   margin: 0;
   padding: 0;
   font-family: "FF Providence Sans", sans-serif;
-  background-color: #f1f038;
+  background-color: #f1f0e8;
   color: #004aad;
 }
 
 /* Contenedores principales */
 .app-container {
   padding: 1rem;
-  background: #f1f038;
+  background: #f1f0e8;
 }
 
 /* Reset para listas en Dashboard */

@@ -1,10 +1,10 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
-from database import get_db
+from backend.database import get_db
 from models import Producto
 from schemas import ProductoCreate, ProductoOut
-
+from backend import models, schemas
 router = APIRouter(prefix="/productos", tags=["Productos"])
 
 @router.get("/", response_model=list[ProductoOut])

@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
-from models import Venta, VentaItem, Producto
-from schemas import VentaCreate, VentaItemCreate
+from backend.models import Venta, VentaItem, Producto
+from backend.schemas import VentaCreate, VentaItemCreate
+from backend import models, schemas
 
 def crear_venta(db: Session, venta: VentaCreate):
     subtotal = 0.0

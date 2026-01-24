@@ -1,44 +1,72 @@
+# schemas.py
 from pydantic import BaseModel
-from datetime import datetime
+from typing import Optional, List
+from datetime import date
 
-class ClienteBase(BaseModel):
-    nombre: str
-    email: str | None = None
-
-class ClienteCreate(ClienteBase):
-    pass
-
-class ClienteOut(ClienteBase):
-    id: int
-
-    class Config:
-        from_attributes = True
-
-
+# -------------------
+# PRODUCTOS
+# -------------------
 class ProductoBase(BaseModel):
     nombre: str
     precio: float
-    stock: float
+    stock: int
 
 class ProductoCreate(ProductoBase):
     pass
 
-class ProductoOut(ProductoBase):
+class ProductoUpdate(BaseModel):
+    nombre: Optional[str] = None
+    precio: Optional[float] = None
+    stock: Optional[int] = None
+
+class Producto(ProductoBase):
     id: int
 
     class Config:
-        from_attributes = True
+        orm_mode = True
 
+# -------------------
+# CLIENTES
+# -------------------
+class ClienteBase(BaseModel):
+    nombre: str
+    email: str
+    telefono: Optional[str] = None
 
-class VentaCreate(BaseModel):
+class ClienteCreate(ClienteBase):
+    pass
+
+class ClienteUpdate(BaseModel):
+    nombre: Optional[str] = None
+    email: Optional[str] = None
+    telefono: Optional[str] = None
+
+# Esta es la clase que tus routers llaman ClienteOut
+class ClienteOut(ClienteBase):
+    id: int
+
+    class Config:
+        orm_mode = True
+
+# -------------------
+# VENTAS
+# -------------------
+class VentaBase(BaseModel):
     cliente_id: int
-    producto_id: int
-    cantidad: float
+    fecha: Optional[date] = None
 
-class VentaOut(BaseModel):
+class VentaCreate(VentaBase):
+    productos_ids: List[int]
+
+class VentaUpdate(BaseModel):
+    cliente_id: Optional[int] = None
+    fecha: Optional[date] = None
+    productos_ids: Optional[List[int]] = None
+
+class Venta(VentaBase):
     id: int
-    total: float
-    fecha: datetime
+    productos: List[Producto] = []
 
     class Config:
-        from_attributes = True
+        orm_mode = True
+
