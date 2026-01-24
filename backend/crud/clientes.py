@@ -1,5 +1,11 @@
 from sqlalchemy.orm import Session
-from backend import models, schemas
+from . import models, schemas, clientes
+
+def read_clientes(db: Session):
+    return db.query(models.Cliente).all()  # asumiendo que tienes un modelo Cliente
+
+def read_productos(db: Session):
+    return db.query(models.Producto).all()  # asumiendo que tienes un modelo Producto
 
 def get_clientes(db: Session):
     return db.query(models.Cliente).all()

@@ -1,12 +1,12 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from database import engine
-from backend.models import Base
-from backend.auth_routes import router as auth_router
-from backend.clientes_routes import router as clientes_router
-from backend.productos_routes import router as productos_router
-from backend.ventas_routes import router as ventas_router
-from backend.seed_runner import run_seed
+from .database import engine
+from .models import Base
+from .auth_routes import router as auth_router
+from .clientes_routes import router as clientes_router
+from .productos_routes import router as productos_router
+from .ventas_routes import router as ventas_router
+from .seed_runner import run_seed
 
 # Crear tablas
 Base.metadata.create_all(bind=engine)

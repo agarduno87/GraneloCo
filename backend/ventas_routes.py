@@ -1,11 +1,15 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from database import get_db
-from models import Venta, Producto
-from schemas import VentaCreate, VentaOut
+from .database import get_db
+from .models import Venta, Producto
+from .schemas import VentaCreate, VentaOut
 
 router = APIRouter(prefix="/ventas", tags=["Ventas"])
+
+@router.get("/")
+def read_ventas():
+    return crud_ventas.get_ventas()
 
 @router.get("/", response_model=list[VentaOut])
 def listar_ventas(db: Session = Depends(get_db)):

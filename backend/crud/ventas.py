@@ -1,7 +1,11 @@
 from sqlalchemy.orm import Session
-from backend.models import Venta, VentaItem, Producto
-from backend.schemas import VentaCreate, VentaItemCreate
-from backend import models, schemas
+from .. models import Venta, VentaItem, Producto
+from .. schemas import VentaCreate, VentaItemCreate
+from .. import models, schemas
+from backend.crud import ventas as crud_ventas
+
+def read_ventas(db: Session):
+    return db.query(models.Venta).all()  # asumiendo que tienes un modelo Venta
 
 def crear_venta(db: Session, venta: VentaCreate):
     subtotal = 0.0

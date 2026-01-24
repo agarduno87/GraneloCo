@@ -2,7 +2,7 @@ from sqlalchemy import Column, Integer, String, Float, ForeignKey, DateTime
 from sqlalchemy.orm import relationship
 from datetime import datetime
 
-from database import Base
+from .database import Base
 
 class Cliente(Base):
     __tablename__ = "clientes"
@@ -34,3 +34,10 @@ class Venta(Base):
     fecha = Column(DateTime, default=datetime.utcnow)
 
     cliente = relationship("Cliente", back_populates="ventas")
+
+class Usuario(Base):
+    __tablename__ = "usuarios"
+
+    id = Column(Integer, primary_key=True, index=True)
+    username = Column(String, unique=True, index=True)
+    password = Column(String)

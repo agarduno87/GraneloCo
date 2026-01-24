@@ -1,9 +1,9 @@
 # productos_routes.py
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from backend.crud import productos as crud_productos
-from backend.schemas import ProductoCreate, ProductoUpdate, Producto
-from database import get_db
+from .crud import productos as crud_productos
+from .schemas import ProductoCreate, ProductoUpdate, Producto
+from .database import get_db
 
 router = APIRouter(
     prefix="/productos",
@@ -13,6 +13,10 @@ router = APIRouter(
 @router.post("/", response_model=Producto)
 def crear_producto(producto: ProductoCreate, db: Session = Depends(get_db)):
     return crud_productos.create_producto(db, producto)
+
+@router.get("/")
+def read_productos():
+    return crud_productos.get_productos()
 
 @router.get("/", response_model=list[Producto])
 def listar_productos(db: Session = Depends(get_db)):
