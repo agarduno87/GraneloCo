@@ -1,56 +1,42 @@
 from pydantic import BaseModel
-from typing import Optional, List
-from datetime import date
 
-# -------- PRODUCTOS --------
-class ProductoRead(BaseModel):
-    id: int
-    nombre: str
-    precio: float
-    stock: float
+# -------- AUTH --------
+class Token(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
 
-    class Config:
-        from_attributes = True
-
+class UsuarioLogin(BaseModel):
+    username: str
+    password: str
 
 # -------- CLIENTES --------
-class ClienteRead(BaseModel):
-    id: int
+class ClienteBase(BaseModel):
     nombre: str
-    email: str | None = None
 
+class ClienteCreate(ClienteBase):
+    pass
+
+class ClienteOut(ClienteBase):
+    id: int
     class Config:
         from_attributes = True
 
+# -------- PRODUCTOS --------
+class ProductoBase(BaseModel):
+    nombre: str
+    precio: float
+
+class ProductoOut(ProductoBase):
+    id: int
+    class Config:
+        from_attributes = True
 
 # -------- VENTAS --------
-class VentaItemCreate(BaseModel):
-    producto_id: int
-    cantidad: float
-
-
-class VentaItemRead(BaseModel):
-    producto: ProductoRead
-    cantidad: float
-    precio_unitario: float
-
-    class Config:
-        from_attributes = True
-
-
-class VentaCreate(BaseModel):
+class VentaBase(BaseModel):
     cliente_id: int
-    items: List[VentaItemCreate]
-
-
-class VentaRead(BaseModel):
-    id: int
-    cliente: ClienteRead
-    subtotal: float
-    impuestos: float
     total: float
-    fecha: date
-    items: List[VentaItemRead]
 
+class VentaOut(VentaBase):
+    id: int
     class Config:
         from_attributes = True

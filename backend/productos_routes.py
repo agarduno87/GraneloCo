@@ -1,13 +1,25 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from database import get_db
-from schemas import ProductoCreate, ProductoUpdate, ProductoRead
+from schemas import ProductoCreate, ProductoUpdate, ProductoRead, ProductoBase, ProductoOut
 from crud import productos as Producto
+from backend.crud.productos import get_productos
+from backend.crud.productos import create_producto
+
+
 
 router = APIRouter(
     prefix="/productos",
     tags=["productos"]
 )
+
+@router.get("/", response_model=list[ProductoOut])
+def listar(db: Session = Depends(get_db)):
+    return get_productos(db)
+
+@router.post("/", response_model=ProductoOut)
+def crear(data: ProductoBase, db: Session = Depends(get_db)):
+    return create_producto(db, data.nombre, data.precio)
 
 @router.post("/", response_model=ProductoRead)
 def crear_producto(producto: ProductoCreate, db: Session = Depends(get_db)):

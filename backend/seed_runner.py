@@ -10,8 +10,8 @@ def run_seed():
     exists = db.query(Usuario).filter(Usuario.username == "admin").first()
     if not exists:
         admin = Usuario(
-            username="admin",
-            password=hash_password("admin")
+            username="Granel",
+            password=hash_password("Agarduno_87")
         )
         db.add(admin)
         db.commit()
