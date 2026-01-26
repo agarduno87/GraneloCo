@@ -14,18 +14,23 @@ api.interceptors.request.use(config => {
 
 // Función para hacer login
 export const login = async (username, password) => {
-  try {
-    const response = await api.post("/auth/login", { username, password });
-    // Guardar token en localStorage si viene en la respuesta
-    if (response.data.access_token) {
-      localStorage.setItem("token", response.data.access_token);
+  const form = new URLSearchParams();
+  form.append("username", username);
+  form.append("password", password);
+
+  const response = await api.post("/auth/login", form, {
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded"
     }
-    return response.data;
-  } catch (error) {
-    // Propagar error al componente para mostrar mensaje
-    throw error.response?.data || { detail: "Error en login" };
+  });
+
+  if (response.data.access_token) {
+    localStorage.setItem("token", response.data.access_token);
   }
+
+  return response.data;
 };
+
 
 // Otras funciones de la API
 export const getClientes = async () => {
