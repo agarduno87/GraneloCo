@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
-from backend.models import Producto
-from backend.schemas import ProductoCreate, ProductoUpdate
+from models import Producto
+from schemas import ProductoUpdate
 
 
 def get_productos(db: Session):

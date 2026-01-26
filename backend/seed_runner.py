@@ -7,11 +7,11 @@ def run_seed():
     Crea un usuario admin por defecto si no existe
     """
     db = SessionLocal()
-    exists = db.query(Usuario).filter(Usuario.username == "admin").first()
+    exists = db.query(Usuario).filter(Usuario.username == "Granel").first()
     if not exists:
         admin = Usuario(
             username="Granel",
-            password=hash_password("Agarduno_87")
+            hashed_password=hash_password("Agarduno_87")
         )
         db.add(admin)
         db.commit()

@@ -12,7 +12,9 @@ from seed_runner import run_seed
 Base.metadata.create_all(bind=engine)
 
 # App
-app = FastAPI()
+app = FastAPI(title="GraneloCo API",
+    description="API para gestión de tienda: usuarios, productos, stock y ventas",
+    version="1.0.0")
 
 # CORS
 app.add_middleware(

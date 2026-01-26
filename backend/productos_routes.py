@@ -1,12 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from database import get_db
-from schemas import ProductoCreate, ProductoUpdate, ProductoRead, ProductoBase, ProductoOut
-from crud import productos as Producto
-from backend.crud.productos import get_productos
-from backend.crud.productos import create_producto
-
-
+from schemas import ProductoCreate, ProductoUpdate, ProductoOut
+from crud import productos as crud_productos
 
 router = APIRouter(
     prefix="/productos",
@@ -14,37 +10,46 @@ router = APIRouter(
 )
 
 @router.get("/", response_model=list[ProductoOut])
-def listar(db: Session = Depends(get_db)):
-    return get_productos(db)
+def listar_productos(db: Session = Depends(get_db)):
+    return crud_productos.get_productos(db)
 
 @router.post("/", response_model=ProductoOut)
-def crear(data: ProductoBase, db: Session = Depends(get_db)):
-    return create_producto(db, data.nombre, data.precio)
+def crear_producto(
+    data: ProductoCreate,
+    db: Session = Depends(get_db)
+):
+    return crud_productos.create_producto(
+        db=db,
+        nombre=data.nombre,
+        precio=data.precio
+    )
 
-@router.post("/", response_model=ProductoRead)
-def crear_producto(producto: ProductoCreate, db: Session = Depends(get_db)):
-    return Producto.create_producto(db, producto)
-
-@router.get("/", response_model=list[ProductoRead])
-def listar_productos(db: Session = Depends(get_db)):
-    return Producto.get_productos(db)
-
-@router.get("/{producto_id}", response_model=ProductoRead)
-def obtener_producto(producto_id: int, db: Session = Depends(get_db)):
-    producto = Producto.get_producto(db, producto_id)
+@router.get("/{producto_id}", response_model=ProductoOut)
+def obtener_producto(
+    producto_id: int,
+    db: Session = Depends(get_db)
+):
+    producto = crud_productos.get_producto(db, producto_id)
     if not producto:
         raise HTTPException(status_code=404, detail="Producto no encontrado")
     return producto
 
-@router.put("/{producto_id}", response_model=ProductoRead)
-def actualizar_producto(producto_id: int, producto: ProductoUpdate, db: Session = Depends(get_db)):
-    producto_actualizado = Producto.update_producto(db, producto_id, producto)
-    if not producto_actualizado:
+@router.put("/{producto_id}", response_model=ProductoOut)
+def actualizar_producto(
+    producto_id: int,
+    data: ProductoUpdate,
+    db: Session = Depends(get_db)
+):
+    producto = crud_productos.update_producto(db, producto_id, data)
+    if not producto:
         raise HTTPException(status_code=404, detail="Producto no encontrado")
-    return producto_actualizado
+    return producto
 
 @router.delete("/{producto_id}")
-def eliminar_producto(producto_id: int, db: Session = Depends(get_db)):
-    if not Producto.delete_producto(db, producto_id):
+def eliminar_producto(
+    producto_id: int,
+    db: Session = Depends(get_db)
+):
+    if not crud_productos.delete_producto(db, producto_id):
         raise HTTPException(status_code=404, detail="Producto no encontrado")
     return {"detalle": "Producto eliminado"}
