@@ -1,42 +1,54 @@
-import { useEffect, useState } from "react";
-import api from "../api";
+import { useEffect, useState } from "react"
+import api from "../api"
 
 export default function Productos() {
-  const [items, setItems] = useState([]);
-  const [form, setForm] = useState({ nombre:"", precio:"", stock:"" });
-  const [error, setError] = useState("");
+  const [productos, setProductos] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
 
-  const cargar = () => api.get("/productos").then(r => setItems(r.data));
-  useEffect(cargar, []);
-
-  const crear = () => {
-    if(!form.nombre || form.precio<=0 || form.stock<0){
-      setError("Todos los campos son obligatorios y válidos");
-      return;
+  useEffect(() => {
+    const fetchProductos = async () => {
+      try {
+        const res = await api.get("/productos/")
+        setProductos(res.data)
+      } catch (err) {
+        console.error(err)
+        setError("No se pudieron cargar los productos")
+      } finally {
+        setLoading(false)
+      }
     }
-    api.post("/productos", { ...form, precio:+form.precio, stock:+form.stock })
-      .then(()=>{ setError(""); cargar(); })
-      .catch(()=>setError("Error al crear producto"));
-  };
 
-  const eliminar = (id) => api.delete(`/productos/${id}`).then(cargar);
+    fetchProductos()
+  }, [])
+
+  if (loading) return <p>Cargando productos…</p>
+  if (error) return <p>{error}</p>
 
   return (
-    <div style={{ padding:20 }}>
-      <h2>Productos</h2>
-      <input placeholder="Nombre" onChange={e=>setForm({...form,nombre:e.target.value})}/>
-      <input placeholder="Precio" type="number" onChange={e=>setForm({...form,precio:e.target.value})}/>
-      <input placeholder="Stock" type="number" onChange={e=>setForm({...form,stock:e.target.value})}/>
-      <button onClick={crear}>Crear</button>
-      {error && <p style={{color:"red"}}>{error}</p>}
-      <ul>
-        {items.map(p => (
-          <li key={p.id}>
-            {p.nombre} - ${p.precio} (Stock: {p.stock})
-            <button onClick={()=>eliminar(p.id)}>🗑</button>
-          </li>
-        ))}
-      </ul>
+    <div className="page-container">
+      <h1>Productos</h1>
+
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Nombre</th>
+            <th>Precio</th>
+            <th>Stock</th>
+          </tr>
+        </thead>
+        <tbody>
+          {productos.map((producto) => (
+            <tr key={producto.id}>
+              <td>{producto.id}</td>
+              <td>{producto.nombre}</td>
+              <td>${producto.precio}</td>
+              <td>{producto.stock}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
-  );
+  )
 }

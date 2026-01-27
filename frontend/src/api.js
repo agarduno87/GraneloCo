@@ -34,12 +34,12 @@ export const login = async (username, password) => {
 
 // Otras funciones de la API
 export const getClientes = async () => {
-  const response = await api.get("/clientes");
+  const response = await api.get("/clientes/");
   return response.data;
 };
 
 export const getProductos = async () => {
-  const response = await api.get("/productos");
+  const response = await api.get("/productos/");
   return response.data;
 };
 

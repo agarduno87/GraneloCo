@@ -1,35 +1,52 @@
-import { useEffect, useState } from "react";
-import api from "../api";
+import { useEffect, useState } from "react"
+import api from "../api"
 
 export default function Clientes() {
-  const [items,setItems] = useState([]);
-  const [nombre,setNombre] = useState("");
-  const [email,setEmail] = useState("");
-  const [error,setError] = useState("");
+  const [clientes, setClientes] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
 
-  const cargar = () => api.get("/clientes").then(r=>setItems(r.data));
-  useEffect(cargar, []);
-
-  const crear = () => {
-    if(!nombre || !email){
-      setError("Todos los campos son obligatorios");
-      return;
+  useEffect(() => {
+    const fetchClientes = async () => {
+      try {
+        const res = await api.get("/clientes/")
+        setClientes(res.data)
+      } catch (err) {
+        console.error(err)
+        setError("No se pudieron cargar los clientes")
+      } finally {
+        setLoading(false)
+      }
     }
-    api.post("/clientes",{nombre,email})
-      .then(()=>{ setError(""); cargar(); })
-      .catch(()=>setError("Error al crear cliente"));
-  };
+
+    fetchClientes()
+  }, [])
+
+  if (loading) return <p>Cargando clientes…</p>
+  if (error) return <p>{error}</p>
 
   return (
-    <div style={{padding:20}}>
-      <h2>Clientes</h2>
-      <input placeholder="Nombre" onChange={e=>setNombre(e.target.value)}/>
-      <input placeholder="Email" onChange={e=>setEmail(e.target.value)}/>
-      <button onClick={crear}>Crear</button>
-      {error && <p style={{color:"red"}}>{error}</p>}
-      <ul>
-        {items.map(c => <li key={c.id}>{c.nombre} ({c.email})</li>)}
-      </ul>
+    <div className="page-container">
+      <h1>Clientes</h1>
+
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Nombre</th>
+            <th>Email</th>
+          </tr>
+        </thead>
+        <tbody>
+          {clientes.map((cliente) => (
+            <tr key={cliente.id}>
+              <td>{cliente.id}</td>
+              <td>{cliente.nombre}</td>
+              <td>{cliente.email}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
-  );
+  )
 }
