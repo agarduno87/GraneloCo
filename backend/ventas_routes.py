@@ -1,21 +1,19 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from database import get_db
-from schemas import VentaCreate, VentaRead
-from crud import ventas as crud_ventas
+from models import Venta
+from schemas import VentaCreate
 
-router = APIRouter(
-    prefix="/ventas",
-    tags=["ventas"]
-)
+router = APIRouter(prefix="/ventas", tags=["Ventas"])
 
-@router.get("/", response_model=list[VentaRead])
-def listar_ventas(db: Session = Depends(get_db)):
-    return crud_ventas.get_ventas(db)
+@router.get("/")
+def get_ventas(db: Session = Depends(get_db)):
+    return db.query(Venta).all()
 
-@router.post("/", response_model=VentaRead)
-def crear_venta(data: VentaCreate, db: Session = Depends(get_db)):
-    try:
-        return crud_ventas.crear_venta(db, data)
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+@router.post("/")
+def create_venta(venta: VentaCreate, db: Session = Depends(get_db)):
+    nueva = Venta(**venta.dict())
+    db.add(nueva)
+    db.commit()
+    db.refresh(nueva)
+    return nueva

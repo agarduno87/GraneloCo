@@ -3,50 +3,44 @@ import api from "../api"
 
 export default function Ventas() {
   const [ventas, setVentas] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
+  const [clienteId, setClienteId] = useState("")
+  const [productoId, setProductoId] = useState("")
+  const [cantidad, setCantidad] = useState("")
+
+  const loadVentas = async () => {
+    const res = await api.get("/ventas/")
+    setVentas(res.data)
+  }
+
+  const crearVenta = async () => {
+    await api.post("/ventas/", {
+      cliente_id: Number(clienteId),
+      producto_id: Number(productoId),
+      cantidad: Number(cantidad),
+    })
+    loadVentas()
+  }
 
   useEffect(() => {
-    const fetchVentas = async () => {
-      try {
-        const res = await api.get("/ventas/")
-        setVentas(res.data)
-      } catch (err) {
-        console.error(err)
-        setError("No se pudieron cargar las ventas")
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    fetchVentas()
+    loadVentas()
   }, [])
 
-  if (loading) return <p>Cargando ventas…</p>
-  if (error) return <p>{error}</p>
-
   return (
-    <div className="page-container">
-      <h1>Ventas</h1>
+    <>
+      <h2>Ventas</h2>
 
-      <table>
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Cliente ID</th>
-            <th>Total</th>
-          </tr>
-        </thead>
-        <tbody>
-          {ventas.map((venta) => (
-            <tr key={venta.id}>
-              <td>{venta.id}</td>
-              <td>{venta.cliente_id}</td>
-              <td>${venta.total}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+      <input placeholder="Cliente ID" value={clienteId} onChange={e => setClienteId(e.target.value)} />
+      <input placeholder="Producto ID" value={productoId} onChange={e => setProductoId(e.target.value)} />
+      <input placeholder="Cantidad (kg)" value={cantidad} onChange={e => setCantidad(e.target.value)} />
+      <button onClick={crearVenta}>Crear Venta</button>
+
+      <ul>
+        {ventas.map(v => (
+          <li key={v.id}>
+            Cliente {v.cliente_id} → Producto {v.producto_id} → {v.cantidad} kg
+          </li>
+        ))}
+      </ul>
+    </>
   )
 }

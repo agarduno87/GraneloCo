@@ -3,52 +3,47 @@ import api from "../api"
 
 export default function Productos() {
   const [productos, setProductos] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
+  const [nombre, setNombre] = useState("")
+  const [precio, setPrecio] = useState("")
+  const [stock, setStock] = useState("")
+
+  const loadProductos = async () => {
+    const res = await api.get("/productos/")
+    setProductos(res.data)
+  }
+
+  const crearProducto = async () => {
+    await api.post("/productos/", {
+      nombre,
+      precio: Number(precio),
+      stock: Number(stock),
+    })
+    setNombre("")
+    setPrecio("")
+    setStock("")
+    loadProductos()
+  }
 
   useEffect(() => {
-    const fetchProductos = async () => {
-      try {
-        const res = await api.get("/productos/")
-        setProductos(res.data)
-      } catch (err) {
-        console.error(err)
-        setError("No se pudieron cargar los productos")
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    fetchProductos()
+    loadProductos()
   }, [])
 
-  if (loading) return <p>Cargando productos…</p>
-  if (error) return <p>{error}</p>
-
   return (
-    <div className="page-container">
-      <h1>Productos</h1>
+    <>
+      <h2>Productos</h2>
 
-      <table>
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Nombre</th>
-            <th>Precio</th>
-            <th>Stock</th>
-          </tr>
-        </thead>
-        <tbody>
-          {productos.map((producto) => (
-            <tr key={producto.id}>
-              <td>{producto.id}</td>
-              <td>{producto.nombre}</td>
-              <td>${producto.precio}</td>
-              <td>{producto.stock}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+      <input placeholder="Nombre" value={nombre} onChange={e => setNombre(e.target.value)} />
+      <input placeholder="Precio por kg" value={precio} onChange={e => setPrecio(e.target.value)} />
+      <input placeholder="Stock (kg)" value={stock} onChange={e => setStock(e.target.value)} />
+      <button onClick={crearProducto}>Crear Producto</button>
+
+      <ul>
+        {productos.map(p => (
+          <li key={p.id}>
+            {p.nombre} — ${p.precio} — {p.stock} kg
+          </li>
+        ))}
+      </ul>
+    </>
   )
 }

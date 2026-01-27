@@ -3,50 +3,38 @@ import api from "../api"
 
 export default function Clientes() {
   const [clientes, setClientes] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
+  const [nombre, setNombre] = useState("")
+  const [email, setEmail] = useState("")
+
+  const loadClientes = async () => {
+    const res = await api.get("/clientes/")
+    setClientes(res.data)
+  }
+
+  const crearCliente = async () => {
+    await api.post("/clientes/", { nombre, email })
+    setNombre("")
+    setEmail("")
+    loadClientes()
+  }
 
   useEffect(() => {
-    const fetchClientes = async () => {
-      try {
-        const res = await api.get("/clientes/")
-        setClientes(res.data)
-      } catch (err) {
-        console.error(err)
-        setError("No se pudieron cargar los clientes")
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    fetchClientes()
+    loadClientes()
   }, [])
 
-  if (loading) return <p>Cargando clientes…</p>
-  if (error) return <p>{error}</p>
-
   return (
-    <div className="page-container">
-      <h1>Clientes</h1>
+    <>
+      <h2>Clientes</h2>
 
-      <table>
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Nombre</th>
-            <th>Email</th>
-          </tr>
-        </thead>
-        <tbody>
-          {clientes.map((cliente) => (
-            <tr key={cliente.id}>
-              <td>{cliente.id}</td>
-              <td>{cliente.nombre}</td>
-              <td>{cliente.email}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+      <input placeholder="Nombre" value={nombre} onChange={e => setNombre(e.target.value)} />
+      <input placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} />
+      <button onClick={crearCliente}>Crear Cliente</button>
+
+      <ul>
+        {clientes.map(c => (
+          <li key={c.id}>{c.nombre} — {c.email}</li>
+        ))}
+      </ul>
+    </>
   )
 }
