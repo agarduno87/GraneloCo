@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { login } from "../api";
+import api from "../api";
 import { useNavigate } from "react-router-dom";
 
 export default function Login() {
@@ -10,8 +10,9 @@ export default function Login() {
 
   const submit = async () => {
     try {
-      await login(username, password); // 👈 AQUÍ
-      navigate("/ventas");             // 👈 O "/" según tu router
+      const r = await api.post("/login", { username, password });
+      localStorage.setItem("token", r.data.access_token);
+      navigate("/");
     } catch (e) {
       setError("Usuario o contraseña incorrectos");
     }
@@ -20,23 +21,10 @@ export default function Login() {
   return (
     <div style={{ padding: 20 }}>
       <h2>Login</h2>
-
-      <input
-        placeholder="Usuario"
-        value={username}
-        onChange={e => setUsername(e.target.value)}
-      />
-
-      <input
-        placeholder="Contraseña"
-        type="password"
-        value={password}
-        onChange={e => setPassword(e.target.value)}
-      />
-
+      <input placeholder="Usuario" onChange={e=>setUsername(e.target.value)} />
+      <input placeholder="Contraseña" type="password" onChange={e=>setPassword(e.target.value)} />
       <button onClick={submit}>Entrar</button>
-
-      {error && <p style={{ color: "red" }}>{error}</p>}
+      {error && <p style={{ color:"red" }}>{error}</p>}
     </div>
   );
 }
