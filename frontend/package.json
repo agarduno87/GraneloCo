@@ -9,7 +9,7 @@
     "tauri:build": "cd .. && tauri build"
   },
   "dependencies": {
-    "axios": "^1.4.0",
+    "axios": "^1.13.5",
     "cargo": "^0.8.0",
     "chart.js": "^4.5.1",
     "react": "^18.2.0",
